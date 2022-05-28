@@ -1,6 +1,7 @@
 const express = require('express')
 const cors=require('cors')
 const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
+
 require('dotenv').config()
 const app = express()
 const port=4000
@@ -28,7 +29,13 @@ async function run(){
           const users= await cursor.toArray()
          res.send(users) 
       }) 
-      
+
+       app.get('/user/:id',async(req,res)=>{
+          const id=req.params.id 
+          const query={_id:ObjectId(id)}
+          const result=await userCollection.findOne(query)
+         res.send(result) 
+      })
       
       //create inventory item
 
@@ -40,8 +47,19 @@ async function run(){
       })
 
 
-      //udate inventory
-
+      //udate user
+      app.put('/user/:id',async(req,res)=>{
+        const id=req.params.id 
+        const data=req.body
+        const filter ={_id:ObjectId(id)}
+        
+        const options={upsert:true}
+        const updateDoc={
+            $set:data
+        }
+        const result = await userCollection.updateOne(filter,updateDoc,options)
+       res.send(result) 
+    })
       
       
    }
