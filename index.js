@@ -21,14 +21,36 @@ async function run(){
      
       await client.connect()
           const userCollection = client.db("manufacturer-company").collection("users");
+          const loginCollection = client.db("manufacturer-company").collection("loginusers");
           
-      // get api to read all inventory 
+      // get api to read all inventory
+      app.get('/alluser',async(req,res)=>{
+        const query={}
+        const  cursor= userCollection.find(query)
+        const users= await cursor.toArray()
+       res.send(users) 
+    })
+      
       app.get('/user',async(req,res)=>{
-          const query={}
+          const email=req.query.email
+          const query={email:email}
           const  cursor= userCollection.find(query)
           const users= await cursor.toArray()
          res.send(users) 
       }) 
+
+      app.put('/user/:email',async(req,res)=>{
+        const email=req.params.email
+        const user=req.body
+        const filter ={email:email}
+        
+        const options={upsert:true}
+        const updateDoc={
+            $set: user,
+        }
+        const result = await loginCollection.updateOne(filter,updateDoc,options)
+       res.send(result) 
+    })
 
        app.get('/user/:id',async(req,res)=>{
           const id=req.params.id 
@@ -46,7 +68,25 @@ async function run(){
 
       })
 
+       //admin role
+       app.put('/user/admin/:email',async(req,res)=>{
+        const email=req.params.email
+        const data=req.body
+        const filter ={email:email}
+        const updateDoc={
+            $set:{role:'admin'}
+        }
+        const result = await userCollection.updateOne(filter,updateDoc)
+       res.send(result) 
+    })
 
+    app.get('/admin/:email', async(req, res) =>{
+          const email = req.params.email;
+          const user = await userCollection.findOne({email: email});
+          const isAdmin = user.role === 'admin';
+          res.send({admin: isAdmin})
+        })
+        
       //udate user
       app.put('/user/:id',async(req,res)=>{
         const id=req.params.id 
@@ -60,6 +100,8 @@ async function run(){
         const result = await userCollection.updateOne(filter,updateDoc,options)
        res.send(result) 
     })
+
+
       
       
    }
