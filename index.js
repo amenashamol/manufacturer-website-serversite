@@ -1,5 +1,6 @@
 const express = require('express')
 const cors=require('cors')
+const jwt=require('jsonwebtoken')
 const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 
 require('dotenv').config()
@@ -24,22 +25,32 @@ async function run(){
           const loginCollection = client.db("manufacturer-company").collection("loginusers");
           
       // get api to read all inventory
-      app.get('/alluser',async(req,res)=>{
-        const query={}
-        const  cursor= userCollection.find(query)
-        const users= await cursor.toArray()
-       res.send(users) 
-    })
+    //   app.get('/alluser',async(req,res)=>{
+    //     const query={}
+    //     const  cursor= userCollection.find(query)
+    //     const users= await cursor.toArray()
+    //    res.send(users) 
+    // })
+
+    
+
+//   app.get('/loginuser/:email',async(req,res)=>{
+//     const email=req.query.email
+//     const query={email:email}
+//     const  cursor= loginCollection.find(query)
+//     const users= await cursor.toArray()
+//    res.send(users) 
+// })
       
-      app.get('/user',async(req,res)=>{
+      app.get('/loginuser',async(req,res)=>{
           const email=req.query.email
           const query={email:email}
-          const  cursor= userCollection.find(query)
+          const  cursor= loginCollection.find(query)
           const users= await cursor.toArray()
          res.send(users) 
       }) 
 
-      app.put('/user/:email',async(req,res)=>{
+      app.put('/logeduser/:email',async(req,res)=>{
         const email=req.params.email
         const user=req.body
         const filter ={email:email}
@@ -49,58 +60,62 @@ async function run(){
             $set: user,
         }
         const result = await loginCollection.updateOne(filter,updateDoc,options)
-       res.send(result) 
+        const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+       res.send({result,token}) 
     })
 
       
       
       //create inventory item
 
-      app.post('/user',async(req,res)=>{
-          const data =req.body
-          const result=await userCollection.insertOne(data)
-          res.send(result)
+      // app.post('/user',async(req,res)=>{
+      //     const data =req.body
+      //     const result=await userCollection.insertOne(data)
+      //     res.send(result)
 
-      })
+      // })
 
        //admin role
-       app.put('/user/admin/:email',async(req,res)=>{
-        const email=req.params.email
-        const data=req.body
-        const filter ={email:email}
-        const updateDoc={
-            $set:{role:'admin'}
-        }
-        const result = await userCollection.updateOne(filter,updateDoc)
-       res.send(result) 
-    })
+    //    app.put('/loginuser/admin/:email',async(req,res)=>{
+    //     const email=req.params.email
+    //     const data=req.body
+    //     const filter ={email:email}
+    //     const updateDoc={
+    //         $set:{role:'admin'}
+    //     }
+    //     const result = await loginCollection.updateOne(filter,updateDoc)
+    //    res.send(result) 
+    // })
 
-    app.get('/admin/:email', async(req, res) =>{
-          const email = req.params.email;
-          const user = await userCollection.findOne({email: email});
-          const isAdmin = user.role === 'admin';
-          res.send({admin: isAdmin})
-        })
+    // app.get('/admin/:email', async(req, res) =>{
+    //       const email = req.params.email;
+    //       const user = await userCollection.findOne({email: email});
+    //       const isAdmin = user.role === 'admin';
+    //       res.send({admin: isAdmin})
+    //     })
         
       //udate user
 
-      app.get('/user/:id',async(req,res)=>{
+      app.get('/loginuser/:id',async(req,res)=>{
         const id=req.params.id 
         const query={_id:ObjectId(id)}
-        const result=await userCollection.findOne(query)
+        const result=await loginCollection.findOne(query)
        res.send(result) 
     })
     
-      app.put('/user/:id',async(req,res)=>{
+      app.put('/loginuser/:id',async(req,res)=>{
         const id=req.params.id 
         const data=req.body
         const filter ={_id:ObjectId(id)}
         
         const options={upsert:true}
         const updateDoc={
-            $set:data
+            $set: {
+              ...data
+            }
+            
         }
-        const result = await userCollection.updateOne(filter,updateDoc,options)
+        const result = await loginCollection.updateOne(filter,updateDoc,options)
        res.send(result) 
     })
 
