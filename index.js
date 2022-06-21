@@ -34,13 +34,13 @@ async function run(){
 
     
 
-//   app.get('/loginuser/:email',async(req,res)=>{
-//     const email=req.query.email
-//     const query={email:email}
-//     const  cursor= loginCollection.find(query)
-//     const users= await cursor.toArray()
-//    res.send(users) 
-// })
+  app.get('/loginuser',async(req,res)=>{
+    
+    const query={}
+    const  cursor= loginCollection.find(query)
+    const users= await cursor.toArray()
+   res.send(users) 
+})
       
       app.get('/loginuser',async(req,res)=>{
           const email=req.query.email
@@ -75,17 +75,17 @@ async function run(){
 
       // })
 
-       //admin role
-    //    app.put('/loginuser/admin/:email',async(req,res)=>{
-    //     const email=req.params.email
-    //     const data=req.body
-    //     const filter ={email:email}
-    //     const updateDoc={
-    //         $set:{role:'admin'}
-    //     }
-    //     const result = await loginCollection.updateOne(filter,updateDoc)
-    //    res.send(result) 
-    // })
+      //  admin role
+       app.put('/loginuser/admin/:email',async(req,res)=>{
+        const email=req.params.email
+        const data=req.body
+        const filter ={email:email}
+        const updateDoc={
+            $set:{role:'admin'}
+        }
+        const result = await loginCollection.updateOne(filter,updateDoc)
+       res.send(result) 
+    })
 
     // app.get('/admin/:email', async(req, res) =>{
     //       const email = req.params.email;
