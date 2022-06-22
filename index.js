@@ -16,19 +16,28 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xlf3n.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-function verifyJWT(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) {
-    return res.status(401).send({ message: 'UnAuthorized access' });
-  }
-  const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ message: 'Forbidden access' })
-    }
-    req.decoded = decoded;
-    next();
-  });
+ function verifyJWT(req, res, next) {
+  
+    const authHeader = req.headers['authorization'];
+    const token =  authHeader && authHeader.split(' ')[1];
+   
+    if (!token) {
+      return res.status(401).json({ message: 'UnAuthorized access' });
+   }
+   
+    
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodeduser)=> {
+      if (err) {
+        return res.status(403).send({ message: 'Forbidden access' })
+      }
+      
+      req.decodeduser = decodeduser;
+      
+      
+      next()
+     })
+   
+   
 }
 
 async function run(){
@@ -44,7 +53,7 @@ async function run(){
 
       //loginuser
 
-      app.get('/loginuser', async(req,res)=>{
+      app.get('/loginuser',   async(req,res)=>{
           const email=req.query.email
           const query={email:email}
           const  cursor= loginCollection.find(query)
@@ -62,7 +71,7 @@ async function run(){
             $set: user,
         }
         const result = await loginCollection.updateOne(filter,updateDoc,options)
-        const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' })
        res.send({result,token}) 
     })
 
@@ -98,31 +107,38 @@ async function run(){
 
       //  admin role
 
-      app.get('/adminuser', async(req,res)=>{
-    
-        const query={}
-        const  cursor= loginCollection.find(query)
+      app.get('/adminuser', verifyJWT, async(req,res)=>{
+        const  cursor= loginCollection.find()
         const users= await cursor.toArray()
        res.send(users) 
     })
       
-       app.put('/adminuser/admin/:email',async(req,res)=>{
+       app.put('/adminuser/admin/:email', verifyJWT, async(req,res)=>{
         const email=req.params.email
-      
-        const filter ={email:email}
-        const updateDoc={
-            $set:{role:'admin'}
+        const  requester =req.decodeduser.email 
+        const requesterAcount = await loginCollection.findOne({email:requester})
+        if(requesterAcount.role==='admin'){
+          const filter ={email:email}
+          const updateDoc={
+              $set:{role:'admin'}
+
+          }
+          const result = await loginCollection.updateOne(filter,updateDoc)
+       res.send(result)
         }
-        const result = await loginCollection.updateOne(filter,updateDoc)
-       res.send(result) 
+        else{
+          res.status(403).send({message:'forbidden'})
+        }
+         
     })
 
-    // app.get('/admin/:email', async(req, res) =>{
-    //       const email = req.params.email;
-    //       const user = await userCollection.findOne({email: email});
-    //       const isAdmin = user.role === 'admin';
-    //       res.send({admin: isAdmin})
-    //     })
+    app.get('/admin/:email', verifyJWT, async(req, res) =>{
+          const email = req.params.email;
+          const user = await loginCollection.findOne({email: email});
+           const isAdmin = user.role === 'admin';
+          
+           res.send({admin: isAdmin})
+        })
 
         
       
