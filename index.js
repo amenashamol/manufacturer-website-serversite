@@ -1,7 +1,7 @@
 const express = require('express')
 const cors=require('cors')
 const jwt=require('jsonwebtoken')
-const { MongoClient, ServerApiVersion,  ObjectId, ObjectID } = require('mongodb');
+const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 
 require('dotenv').config()
 const app = express()
@@ -44,13 +44,14 @@ async function run(){
   try{
      
       await client.connect()
-          const partsCollection = client.db("manufacturer-company").collection("parts");
+          
           const loginCollection = client.db("manufacturer-company").collection("loginusers");
+          const partsCollection = client.db("manufacturer-company").collection("parts");
+          const ordersCollection = client.db("manufacturer-company").collection("orders");
           
       
 
-    
-
+         
       //loginuser
 
       app.get('/loginuser',   async(req,res)=>{
@@ -142,18 +143,28 @@ async function run(){
 
        //parts
       
-   app.get('/parts', async(req,res)=>{
-       const  cursor= partsCollection.find()
-       const parts= await cursor.toArray()
-       res.send(parts)
-         })
+       app.get('/parts', async(req,res)=>{
+        const  cursor= partsCollection.find()
+        const parts= await cursor.toArray()
+        res.send(parts)
+          })
+ 
+          app.get('/part',async(req,res)=>{
+            const id=req.query.id 
+            const query={_id:ObjectId(id)}
+           
+            
+           const result= await partsCollection.findOne(query)
+           res.send(result) 
+        })
+       
+        //orders
+        app.post('/orders',async(req,res)=>{
+          const data =req.body
+          const result=await ordersCollection.insertOne(data)
+          res.send(result)
 
-         app.get('/part/:id', async(req,res)=>{
-          const id=req.params.id 
-          const query={_id:ObjectId(id)}
-          const result=await partsCollection.findOne(query)
-         res.send(result) 
-      })
+      }) 
       
       
    }
