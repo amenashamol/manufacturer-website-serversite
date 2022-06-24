@@ -156,7 +156,7 @@ async function run(){
         res.send(result) 
         })
        
-        //orderssssss
+        //orders
     app.post('/orders',async(req,res)=>{
         const data =req.body
         const result=await ordersCollection.insertOne(data)
