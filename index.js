@@ -143,28 +143,39 @@ async function run(){
 
        //parts
       
-       app.get('/parts', async(req,res)=>{
+    app.get('/parts', async(req,res)=>{
         const  cursor= partsCollection.find()
         const parts= await cursor.toArray()
         res.send(parts)
           })
  
-          app.get('/part',async(req,res)=>{
-            const id=req.query.id 
-            const query={_id:ObjectId(id)}
-           
-            
-           const result= await partsCollection.findOne(query)
-           res.send(result) 
+    app.get('/part',async(req,res)=>{
+        const id=req.query.id 
+        const query={_id:ObjectId(id)}
+        const result= await partsCollection.findOne(query)
+        res.send(result) 
         })
        
         //orders
-        app.post('/orders',async(req,res)=>{
-          const data =req.body
-          const result=await ordersCollection.insertOne(data)
-          res.send(result)
+    app.post('/orders',async(req,res)=>{
+        const data =req.body
+        const result=await ordersCollection.insertOne(data)
+        res.send(result)
+        })
 
-      }) 
+    app.get('/allorders',async(req,res)=>{
+        const result=await ordersCollection.find().toArray()
+        res.send(result)
+      })
+     
+      app.get('/order',  verifyJWT, async(req,res)=>{
+        const email=req.query.email
+        const query={email:email}
+        const  cursor= ordersCollection.find(query)
+        const users= await cursor.toArray()
+       res.send(users) 
+    }) 
+      
       
       
    }
