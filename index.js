@@ -44,7 +44,7 @@ async function run(){
   try{
      
       await client.connect()
-          const userCollection = client.db("manufacturer-company").collection("users");
+          const partsCollection = client.db("manufacturer-company").collection("parts");
           const loginCollection = client.db("manufacturer-company").collection("loginusers");
           
       
@@ -140,8 +140,22 @@ async function run(){
            res.send({admin: isAdmin})
         })
 
-        
+       //parts
       
+   app.get('/parts', async(req,res)=>{
+       const  cursor= partsCollection.find()
+       const parts= await cursor.toArray()
+       res.send(parts)
+         })
+
+         app.get('/part',   async(req,res)=>{
+          const id=req.query.id
+          const query={_id:ObjectId(id)}
+          const  cursor= partsCollection.find(query)
+          const part= await cursor.toArray()
+         res.send(part) 
+      }) 
+
 
       
       
