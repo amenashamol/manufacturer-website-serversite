@@ -143,8 +143,8 @@ async function run(){
 
        //parts
       
-    app.get('/parts', async(req,res)=>{
-        const  cursor= partsCollection.find()
+    app.get('/allparts', async(req,res)=>{
+        const  cursor= partsCollection.find().limit(6)
         const parts= await cursor.toArray()
         res.send(parts)
           })
@@ -154,6 +154,18 @@ async function run(){
         const query={_id:ObjectId(id)}
         const result= await partsCollection.findOne(query)
         res.send(result) 
+        })
+
+        app.get('/allproduct', async(req,res)=>{
+          const  cursor= partsCollection.find()
+          const parts= await cursor.toArray()
+          res.send(parts)
+            })
+
+        app.post('/product', async(req,res)=>{
+          const parts =req.body;
+          const result=await partsCollection.insertOne(parts)
+          res.send(result)
         })
        
         //orders
@@ -175,6 +187,13 @@ async function run(){
         const users= await cursor.toArray()
        res.send(users) 
     }) 
+
+    app.delete('/order/:id', verifyJWT,async(req,res)=>{
+      const id=req.params.id 
+      const query={_id:ObjectId(id)}
+      const result= await ordersCollection.deleteOne(query)
+      res.send(result) 
+      })
       
       
       
