@@ -51,6 +51,7 @@ async function run(){
           const partsCollection = client.db("manufacturer-company").collection("parts");
           const ordersCollection = client.db("manufacturer-company").collection("orders");
           const paymentCollection = client.db("manufacturer-company").collection("payment");
+          const reviewsCollection = client.db("manufacturer-company").collection("reviews");
           
       
 
@@ -170,8 +171,9 @@ async function run(){
           const result=await partsCollection.insertOne(parts)
           res.send(result)
         })
+
        
-        //orders
+    //orders
     app.post('/orders',async(req,res)=>{
         const data =req.body
         const result=await ordersCollection.insertOne(data)
@@ -197,6 +199,20 @@ async function run(){
       const result= await ordersCollection.deleteOne(query)
       res.send(result) 
       })
+
+
+
+  // review
+  app.post('/review',async(req,res)=>{
+    const data =req.body
+    const result=await reviewsCollection.insertOne(data)
+    res.send(result)
+    })
+
+    app.get('/review',async(req,res)=>{
+      const result=await reviewsCollection.find().toArray()
+      res.send(result)
+    })
       
       //booking 
       app.get('/booking/:id', verifyJWT,async(req,res)=>{
@@ -235,6 +251,7 @@ async function run(){
           const updatedBooking = await ordersCollection.updateOne(filter, updatedDoc);
           res.send(updatedBooking);
         })
+
 
    }
 
