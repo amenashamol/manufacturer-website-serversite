@@ -1,11 +1,14 @@
 const express = require('express')
 const cors=require('cors')
 const jwt=require('jsonwebtoken')
-const Stripe = require('stripe');
-const stripe = Stripe('sk_test_51LEYIlA4ZvOXwqZLN533BeKZ1AtR4WdTT7269IVJD0ThA8888JjizqgcFIaFRAxYDXULMzaHscRkdqxR0njUcVT000NMUWtaxy')
+require('dotenv').config()
 const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 
-require('dotenv').config()
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+
+
+
 const app = express()
 const port= process.env.PORT || 4000
 
@@ -58,7 +61,7 @@ async function run(){
          
       //loginuser
 
-      app.get('/loginuser',   async(req,res)=>{
+      app.get('/loginuser', verifyJWT,  async(req,res)=>{
           const email=req.query.email
           const query={email:email}
           const  cursor= loginCollection.find(query)
@@ -83,7 +86,7 @@ async function run(){
        
     //udate user
 
-    app.get('/updateuser/:id',async(req,res)=>{
+    app.get('/updateuser/:id', verifyJWT, async(req,res)=>{
       const id=req.params.id 
       const query={_id:ObjectId(id)}
       const result=await loginCollection.findOne(query)
@@ -153,14 +156,14 @@ async function run(){
         res.send(parts)
           })
  
-    app.get('/part',async(req,res)=>{
+    app.get('/part',  async(req,res)=>{
         const id=req.query.id 
         const query={_id:ObjectId(id)}
         const result= await partsCollection.findOne(query)
         res.send(result) 
         })
 
-        app.get('/allproduct', async(req,res)=>{
+        app.get('/allproduct', verifyJWT, async(req,res)=>{
           const  cursor= partsCollection.find()
           const parts= await cursor.toArray()
           res.send(parts)
@@ -187,7 +190,7 @@ async function run(){
         res.send(result)
         })
 
-    app.get('/allorders',async(req,res)=>{
+    app.get('/allorders', verifyJWT, async(req,res)=>{
         const result=await ordersCollection.find().toArray()
         res.send(result)
       })
@@ -216,7 +219,7 @@ async function run(){
     res.send(result)
     })
 
-    app.get('/review',async(req,res)=>{
+    app.get('/review', async(req,res)=>{
       const result=await reviewsCollection.find().toArray()
       res.send(result)
     })
@@ -231,7 +234,7 @@ async function run(){
       
 
         //PAYMENT
-        app.post('/create-payment-intent', verifyJWT, async(req, res) =>{
+        app.post('/create-payment-intent',  async(req, res) =>{
           const service = req.body;
           const price = service.amount;
           const amount = price*100;
@@ -240,6 +243,7 @@ async function run(){
             currency: 'usd',
             payment_method_types:['card']
           });
+         
           res.send({clientSecret: paymentIntent.client_secret})
         });
 
