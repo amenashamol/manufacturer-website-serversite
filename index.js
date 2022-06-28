@@ -150,13 +150,13 @@ async function run(){
 
        //parts
       
-    app.get('/allparts', async(req,res)=>{
+    app.get('/allparts', verifyJWT, async(req,res)=>{
         const  cursor= partsCollection.find().limit(6)
         const parts= await cursor.toArray()
         res.send(parts)
           })
  
-    app.get('/part',  async(req,res)=>{
+    app.get('/part', verifyJWT, async(req,res)=>{
         const id=req.query.id 
         const query={_id:ObjectId(id)}
         const result= await partsCollection.findOne(query)
@@ -219,7 +219,7 @@ async function run(){
     res.send(result)
     })
 
-    app.get('/review', async(req,res)=>{
+    app.get('/review', verifyJWT, async(req,res)=>{
       const result=await reviewsCollection.find().toArray()
       res.send(result)
     })
@@ -234,7 +234,7 @@ async function run(){
       
 
         //PAYMENT
-        app.post('/create-payment-intent',  async(req, res) =>{
+        app.post('/create-payment-intent', verifyJWT, async(req, res) =>{
           const service = req.body;
           const price = service.amount;
           const amount = price*100;
