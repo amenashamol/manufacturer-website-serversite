@@ -1,14 +1,12 @@
 const express = require('express')
+const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 const cors=require('cors')
+const path = require('path');
 const jwt=require('jsonwebtoken')
 require('dotenv').config()
-const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
+
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
-
-
-
 const app = express()
 const port= process.env.PORT || 4000
 
@@ -61,7 +59,7 @@ async function run(){
          
       //loginuser
 
-      app.get('/loginuser', verifyJWT,  async(req,res)=>{
+      app.get('/loginuser',   async(req,res)=>{
           const email=req.query.email
           const query={email:email}
           const  cursor= loginCollection.find(query)
@@ -115,7 +113,7 @@ async function run(){
 
       //  admin role
 
-      app.get('/adminuser', verifyJWT, async(req,res)=>{
+      app.get('/adminuser',  async(req,res)=>{
         const  cursor= loginCollection.find()
         const users= await cursor.toArray()
        res.send(users) 
