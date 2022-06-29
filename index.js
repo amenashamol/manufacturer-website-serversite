@@ -161,7 +161,7 @@ async function run(){
         res.send(result) 
         })
 
-        app.get('/allproduct', verifyJWT, async(req,res)=>{
+        app.get('/allproduct',  async(req,res)=>{
           const  cursor= partsCollection.find()
           const parts= await cursor.toArray()
           res.send(parts)
@@ -272,7 +272,7 @@ async function run(){
 
 run().catch(console.dir)
 
-app.get('/', (req, res) => {
+app.get('/app', (req, res) => {
     res.send('Hello World!')
 })
 
