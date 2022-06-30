@@ -1,7 +1,6 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 const cors=require('cors')
-const path = require('path');
+const { MongoClient, ServerApiVersion,  ObjectId } = require('mongodb');
 const jwt=require('jsonwebtoken')
 require('dotenv').config()
 
@@ -113,7 +112,7 @@ async function run(){
 
       //  admin role
 
-      app.get('/adminuser',  async(req,res)=>{
+      app.get('/adminuser', verifyJWT, async(req,res)=>{
         const  cursor= loginCollection.find()
         const users= await cursor.toArray()
        res.send(users) 
@@ -161,10 +160,10 @@ async function run(){
         res.send(result) 
         })
 
-        app.get('/allproduct',  async(req,res)=>{
+        app.get('/allproduct', verifyJWT, async(req,res)=>{
           const  cursor= partsCollection.find()
-          const parts= await cursor.toArray()
-          res.send(parts)
+          const product= await cursor.toArray()
+          res.send(product)
             })
 
         app.post('/product', async(req,res)=>{
