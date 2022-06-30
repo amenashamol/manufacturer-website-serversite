@@ -271,7 +271,7 @@ async function run(){
 
 run().catch(console.dir)
 
-app.get('/', (req, res) => {
+app.get('/hero', (req, res) => {
     res.send('Running server !')
 })
 
