@@ -137,7 +137,7 @@ async function run(){
          
     })
 
-    app.get('/admin/:email', verifyJWT, async(req, res) =>{
+    app.get('/admin/:email',  async(req, res) =>{
           const email = req.params.email;
           const user = await loginCollection.findOne({email: email});
            const isAdmin = user.role === 'admin';
@@ -147,7 +147,7 @@ async function run(){
 
        //parts
       
-    app.get('/allparts',  async(req,res)=>{
+    app.get('/allparts' ,  async(req,res)=>{
         const  cursor= partsCollection.find().limit(6)
         const parts= await cursor.toArray()
         res.send(parts)
