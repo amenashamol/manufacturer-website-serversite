@@ -147,7 +147,7 @@ async function run(){
 
        //parts
       
-    app.get('/allparts' , verifyJWT,  async(req,res)=>{
+    app.get('/allparts' ,   async(req,res)=>{
         const  cursor= partsCollection.find().limit(6)
         const parts= await cursor.toArray()
         res.send(parts)
@@ -216,7 +216,7 @@ async function run(){
     res.send(result)
     })
 
-    app.get('/review', verifyJWT, async(req,res)=>{
+    app.get('/review',  async(req,res)=>{
       const result=await reviewsCollection.find().toArray()
       res.send(result)
     })
