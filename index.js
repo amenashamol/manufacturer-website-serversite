@@ -147,7 +147,7 @@ async function run(){
 
        //parts
       
-    app.get('/allparts', verifyJWT, async(req,res)=>{
+    app.get('/allparts',  async(req,res)=>{
         const  cursor= partsCollection.find().limit(6)
         const parts= await cursor.toArray()
         res.send(parts)
